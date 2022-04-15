@@ -4,13 +4,34 @@
 #include <iostream>
 #include <fstream>
 
-class Circle {
-public:
+class Circle
+{
+private:
 	sf::Text name;
 	sf::CircleShape circle;
 	float speedX;
 	float speedY;
 
+	void checkBbounds (sf::Vector2u windowSize)
+	{
+		float xLeft = this->circle.getPosition().x;
+		float xRight = xLeft + this->circle.getLocalBounds().width;
+
+		float yTop = this->circle.getPosition().y;
+		float yButtom = yTop + this->circle.getLocalBounds().height;
+
+		if ((xLeft < 0) || (xRight > (float) windowSize.x ))
+		{
+			this->speedX *= -1;
+		}
+
+		if ((yTop < 0) || (yButtom > (float) windowSize.y))
+		{
+			this->speedY *= -1;
+		}
+	}
+
+public:
 	Circle(sf::Text text, float X, float Y, float spX, float spY, int R, int G, int B, float rad)
 	: name(text)
 	, speedX (spX)
@@ -25,8 +46,9 @@ public:
 
 	~Circle(){};
 
-	void move()
+	void move(const sf::RenderWindow & window)
 	{
+		this->checkBbounds(window.getSize());
 		this->circle.setPosition(this->circle.getPosition() + sf::Vector2f(this->speedX, this->speedY));
 		this->name.setPosition(this->name.getPosition() + sf::Vector2f(this->speedX, this->speedY));		
 	}
@@ -38,19 +60,41 @@ public:
 	}
 };
 
-class Rectangle {
-public:
+class Rectangle 
+{
+private:
 	sf::Text name;
 	sf::RectangleShape rectangle;
 	float speedX;
 	float speedY;
+
+	void checkBbounds (sf::Vector2u windowSize)
+	{
+		float xLeft = this->rectangle.getPosition().x;
+		float xRight = xLeft + this->rectangle.getLocalBounds().width;
+
+		float yTop = this->rectangle.getPosition().y;
+		float yButtom = yTop + this->rectangle.getLocalBounds().height;
+
+		if ((xLeft < 0) || (xRight > (float) windowSize.x ))
+		{
+			this->speedX *= -1;
+		}
+
+		if ((yTop < 0) || (yButtom > (float) windowSize.y))
+		{
+			this->speedY *= -1;
+		}
+	}
+
+public:
 
 	Rectangle(sf::Text text, float X, float Y, float spX, float spY, int R, int G, float B, float rWidth, float rHeight)
 	: name(text)
 	, speedX(spX)
 	, speedY(spY)
 	{
-		name.setPosition(X + (rWidth - name.getLocalBounds().width)/2, Y + (rHeight - name.getLocalBounds().height)/2);
+		name.setPosition(X + (rWidth - name.getLocalBounds().width)/2, Y + rHeight/2 - name.getLocalBounds().height);
 
 		rectangle = sf::RectangleShape(sf::Vector2f(rWidth, rHeight));
 		rectangle.setFillColor(sf::Color(R, G, B));
@@ -59,8 +103,9 @@ public:
 
 	~Rectangle(){};
 
-	void move()
+	void move(const sf::RenderWindow & window)
 	{
+		this->checkBbounds(window.getSize());
 		this->rectangle.setPosition(this->rectangle.getPosition() + sf::Vector2f(this->speedX, this->speedY));
 		this->name.setPosition(this->name.getPosition() + sf::Vector2f(this->speedX, this->speedY));		
 	}
@@ -159,29 +204,29 @@ int main()
 				window.close();
 			}
 
-			if(event.type == sf::Event::KeyPressed)
-			{
-				std::cout << "Key pressed with code: " << event.key.code << std::endl;
+			// if(event.type == sf::Event::KeyPressed)
+			// {
+			// 	std::cout << "Key pressed with code: " << event.key.code << std::endl;
 
-				if(event.key.code == sf::Keyboard::X)
-				{
-					// circleMoveSpeed = circleMoveSpeed * (-1.0f);
-					// std::cout << "circleMoveSpeed = " << circleMoveSpeed << std::endl;
-				}
-			}
+			// 	if(event.key.code == sf::Keyboard::X)
+			// 	{
+			// 		// circleMoveSpeed = circleMoveSpeed * (-1.0f);
+			// 		// std::cout << "circleMoveSpeed = " << circleMoveSpeed << std::endl;
+			// 	}
+			// }
 		}
 
 		window.clear();
 
 		for (auto & a : circles)
 		{
-			// a.move();
+			a.move(window);
 			a.draw(window);
 		}
 
 		for (auto & b : rectangles)
 		{
-			// b.move();
+			b.move(window);
 			b.draw(window);
 		}
 
